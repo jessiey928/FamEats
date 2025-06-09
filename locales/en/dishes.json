@@ -1,0 +1,28 @@
+{
+  "names": {
+    "Yangzhou Fried Rice": "Yangzhou Fried Rice",
+    "Steamed White Rice": "Steamed White Rice",
+    "Hand-pulled Noodles": "Hand-pulled Noodles",
+    "Sweet and Sour Pork": "Sweet and Sour Pork",
+    "Kung Pao Chicken": "Kung Pao Chicken",
+    "Braised Pork Belly": "Braised Pork Belly",
+    "Mapo Tofu": "Mapo Tofu",
+    "Stir-fried Bok Choy": "Stir-fried Bok Choy",
+    "Dry-fried Green Beans": "Dry-fried Green Beans",
+    "Jasmine Tea": "Jasmine Tea",
+    "Soy Milk": "Soy Milk"
+  },
+  "ingredients": {
+    "1": ["Rice", "Eggs", "Shrimp", "Ham", "Green peas", "Scallions", "Soy sauce"],
+    "2": ["Jasmine rice", "Water"],
+    "3": ["Wheat flour", "Water", "Salt", "Alkaline water"],
+    "4": ["Pork tenderloin", "Pineapple", "Bell peppers", "Onion", "Vinegar", "Sugar", "Ketchup"],
+    "5": ["Chicken breast", "Peanuts", "Dried chilies", "Sichuan peppercorns", "Scallions", "Garlic"],
+    "6": ["Pork belly", "Soy sauce", "Rock sugar", "Shaoxing wine", "Star anise", "Ginger"],
+    "7": ["Silken tofu", "Ground pork", "Doubanjiang", "Sichuan peppercorns", "Scallions", "Garlic"],
+    "8": ["Baby bok choy", "Garlic", "Ginger", "Oyster sauce", "Sesame oil"],
+    "9": ["Green beans", "Preserved vegetables", "Ground pork", "Dried chilies", "Garlic"],
+    "10": ["Jasmine tea leaves", "Hot water"],
+    "11": ["Soybeans", "Water", "Sugar (optional)"]
+  }
+}
