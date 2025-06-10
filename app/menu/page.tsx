@@ -62,7 +62,7 @@ export default function MenuPage() {
   const toggleAvailability = async (id: number) => {
     const dish = menuItems.find((item) => item.id === id);
     if (dish) {
-      await updateMenuItem({ ...dish, available: !dish.available });
+      await updateMenuItem({ ...dish, available: dish.available ? 0 : 1 });
     }
   };
 
@@ -191,6 +191,7 @@ export default function MenuPage() {
                       item.selections.some(
                         (s) => s.member_name === userDisplayName
                       );
+                    console.log(111, translatedItem);
 
                     return (
                       <Card
@@ -289,7 +290,7 @@ export default function MenuPage() {
                             </Label>
                             <Switch
                               id={`available-${item.id}`}
-                              checked={item.available}
+                              checked={!!item.available}
                               onCheckedChange={() =>
                                 toggleAvailability(item.id)
                               }
