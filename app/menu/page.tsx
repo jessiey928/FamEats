@@ -1,30 +1,54 @@
-"use client"
+"use client";
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
-import { MessageSquare, Plus, ChefHat, Check, Eye, LogOut, Globe, X } from "lucide-react"
-import { useApp } from "@/lib/context"
-import { useLanguage } from "@/lib/language-context"
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import {
+  MessageSquare,
+  Plus,
+  ChefHat,
+  Check,
+  Eye,
+  LogOut,
+  Globe,
+  X
+} from "lucide-react";
+import { useApp } from "@/lib/context";
+import { useLanguage } from "@/lib/language-context";
 
 export default function MenuPage() {
-  const { t, language, toggleLanguage } = useLanguage()
-  const { currentUser, setCurrentUser, menuItems, setMenuItems, deleteMenuItem, getTranslatedDish } = useApp()
-  const router = useRouter()
+  const { t, language, toggleLanguage } = useLanguage();
+  const {
+    currentUser,
+    menuItems,
+    loading,
+    logout,
+    deleteMenuItem,
+    getTranslatedDish,
+    toggleSelection,
+    updateMenuItem
+  } = useApp();
+  const router = useRouter();
 
   useEffect(() => {
-    if (!currentUser) {
-      router.replace("/login")
+    if (!loading && !currentUser) {
+      router.replace("/login");
     }
-  }, [currentUser, router])
+  }, [currentUser, loading, router]);
 
-  if (!currentUser) {
+  if (loading || !currentUser) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-100 via-red-100 to-yellow-100 flex items-center justify-center">
         <div className="text-center">
@@ -32,64 +56,59 @@ export default function MenuPage() {
           <p className="text-orange-700">Loading...</p>
         </div>
       </div>
-    )
+    );
   }
 
-  const toggleAvailability = (id: number) => {
-    setMenuItems(menuItems.map((item) => (item.id === id ? { ...item, available: !item.available } : item)))
-  }
+  const toggleAvailability = async (id: number) => {
+    const dish = menuItems.find((item) => item.id === id);
+    if (dish) {
+      await updateMenuItem({ ...dish, available: !dish.available });
+    }
+  };
 
-  const toggleSelection = (id: number) => {
-    const userDisplayName = currentUser.displayName || currentUser.username
+  const handleToggleSelection = async (id: number) => {
+    await toggleSelection(id);
+  };
 
-    setMenuItems(
-      menuItems.map((item) => {
-        if (item.id === id) {
-          const hasSelected = item.selections.includes(userDisplayName)
-          return {
-            ...item,
-            selections: hasSelected
-              ? item.selections.filter((selector) => selector !== userDisplayName)
-              : [...item.selections, userDisplayName],
-          }
-        }
-        return item
-      }),
-    )
-  }
+  const handleLogout = async () => {
+    await logout();
+    router.push("/login");
+  };
 
-  const handleLogout = () => {
-    setCurrentUser(null)
-    router.push("/login")
-  }
-
-  const userDisplayName = currentUser.displayName || currentUser.username
+  const userDisplayName = currentUser.display_name || currentUser.username;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50">
-      <div className="max-w-6xl mx-auto p-4">
+      <div className="max-w-6xl mx-auto p-4 sm:p-6">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent mb-3">
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent mb-2 sm:mb-3">
             {t("title")}
           </h1>
-          <p className="text-xl text-amber-700 font-medium">{t("subtitle")}</p>
+          <p className="text-lg sm:text-xl text-amber-700 font-medium">
+            {t("subtitle")}
+          </p>
         </div>
 
         {/* User Info Header */}
         <Card className="mb-6 border-orange-200 shadow-lg bg-gradient-to-r from-orange-100 to-amber-100">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
               <div className="flex items-center gap-3">
-                <Avatar className="h-12 w-12 border-2 border-orange-300">
+                <Avatar className="h-10 w-10 sm:h-12 sm:w-12 border-2 border-orange-300">
                   <AvatarImage src="/placeholder.svg" alt={userDisplayName} />
-                  <AvatarFallback className="bg-orange-200 text-orange-800">{userDisplayName[0]}</AvatarFallback>
+                  <AvatarFallback className="bg-orange-200 text-orange-800">
+                    {userDisplayName[0]}
+                  </AvatarFallback>
                 </Avatar>
                 <div>
                   <p className="font-bold text-orange-900">
                     {t("welcome")}, {userDisplayName}! 👋
-                    {currentUser.isGuest && (
-                      <Badge variant="outline" className="ml-2 bg-blue-50 border-blue-200 text-blue-700">
+                    {currentUser.is_guest && (
+                      <Badge
+                        variant="outline"
+                        className="ml-2 bg-blue-50 border-blue-200 text-blue-700"
+                      >
                         {t("guest")}
                       </Badge>
                     )}
@@ -97,7 +116,7 @@ export default function MenuPage() {
                   <p className="text-orange-700">{t("whatToCook")}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 self-end sm:self-auto">
                 <Button
                   variant="outline"
                   size="sm"
@@ -123,48 +142,78 @@ export default function MenuPage() {
 
         {/* Menu Tabs */}
         <Tabs defaultValue="all" className="mb-8">
-          <TabsList className="grid grid-cols-5 mb-6 bg-gradient-to-r from-orange-200 to-amber-200 border-orange-300">
-            <TabsTrigger value="all" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">
-              {t("allDishes")}
-            </TabsTrigger>
-            <TabsTrigger value="staple" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">
-              {t("staple")}
-            </TabsTrigger>
-            <TabsTrigger value="meat" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">
-              {t("meat")}
-            </TabsTrigger>
-            <TabsTrigger value="vegetable" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">
-              {t("vegetable")}
-            </TabsTrigger>
-            <TabsTrigger value="drink" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">
-              {t("drink")}
-            </TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto pb-2">
+            <TabsList className="w-full min-w-max grid grid-cols-5 mb-6 bg-gradient-to-r from-orange-200 to-amber-200 border-orange-300">
+              <TabsTrigger
+                value="all"
+                className="data-[state=active]:bg-orange-500 data-[state=active]:text-white"
+              >
+                {t("allDishes")}
+              </TabsTrigger>
+              <TabsTrigger
+                value="staple"
+                className="data-[state=active]:bg-orange-500 data-[state=active]:text-white"
+              >
+                {t("staple")}
+              </TabsTrigger>
+              <TabsTrigger
+                value="meat"
+                className="data-[state=active]:bg-orange-500 data-[state=active]:text-white"
+              >
+                {t("meat")}
+              </TabsTrigger>
+              <TabsTrigger
+                value="vegetable"
+                className="data-[state=active]:bg-orange-500 data-[state=active]:text-white"
+              >
+                {t("vegetable")}
+              </TabsTrigger>
+              <TabsTrigger
+                value="drink"
+                className="data-[state=active]:bg-orange-500 data-[state=active]:text-white"
+              >
+                {t("drink")}
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {["all", "staple", "meat", "vegetable", "drink"].map((category) => (
             <TabsContent key={category} value={category}>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {menuItems
-                  .filter((item) => category === "all" || item.category === category)
+                  .filter(
+                    (item) => category === "all" || item.category === category
+                  )
                   .map((item) => {
-                    const translatedItem = getTranslatedDish(item)
+                    const translatedItem = getTranslatedDish(item);
+                    const hasSelected =
+                      item.selections &&
+                      item.selections.some(
+                        (s) => s.member_name === userDisplayName
+                      );
+
                     return (
                       <Card
                         key={item.id}
-                        className={`overflow-hidden border-orange-200 shadow-lg hover:shadow-xl transition-all duration-300 ${!item.available ? "opacity-60" : "hover:scale-105"}`}
+                        className={`overflow-hidden border-orange-200 shadow-lg hover:shadow-xl transition-all duration-300 ${
+                          !item.available ? "opacity-60" : "hover:scale-102"
+                        }`}
                       >
                         <div className="relative">
                           <img
                             src={translatedItem.image || "/placeholder.svg"}
                             alt={translatedItem.name}
-                            className="w-full h-48 object-cover"
+                            className="w-full h-40 sm:h-48 object-cover"
                           />
                           {translatedItem.available ? (
                             <Badge className="absolute top-3 right-3 bg-green-500 hover:bg-green-600 shadow-lg">
                               {t("available")}
                             </Badge>
                           ) : (
-                            <Badge variant="destructive" className="absolute top-3 right-3 shadow-lg">
+                            <Badge
+                              variant="destructive"
+                              className="absolute top-3 right-3 shadow-lg"
+                            >
                               {t("notAvailable")}
                             </Badge>
                           )}
@@ -172,14 +221,14 @@ export default function MenuPage() {
                             <Button
                               size="sm"
                               className={`shadow-lg font-medium ${
-                                item.selections.includes(userDisplayName)
+                                hasSelected
                                   ? "bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white border-0"
                                   : "bg-gradient-to-r from-orange-400 to-red-400 hover:from-orange-500 hover:to-red-500 text-white border-0"
                               }`}
-                              onClick={() => toggleSelection(item.id)}
+                              onClick={() => handleToggleSelection(item.id)}
                               disabled={!item.available}
                             >
-                              {item.selections.includes(userDisplayName) ? (
+                              {hasSelected ? (
                                 <>
                                   <Check className="h-4 w-4 mr-1" />
                                   {t("selected")}
@@ -194,41 +243,56 @@ export default function MenuPage() {
                           </div>
                         </div>
 
-                        <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50">
-                          <CardTitle className="flex justify-between items-center">
-                            <span className="text-orange-900">{translatedItem.name}</span>
+                        <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 py-3 px-4">
+                          <CardTitle className="flex justify-between items-center text-base sm:text-lg">
+                            <span className="text-orange-900">
+                              {translatedItem.name}
+                            </span>
                           </CardTitle>
                         </CardHeader>
 
-                        <CardContent className="bg-white">
+                        <CardContent className="bg-white p-4">
                           <div className="mb-4">
-                            <h3 className="text-sm font-medium mb-2 text-orange-800">{t("ingredients")}:</h3>
-                            <div className="flex flex-wrap gap-1">
-                              {translatedItem.ingredients.slice(0, 4).map((ingredient, idx) => (
-                                <Badge
-                                  key={idx}
-                                  variant="outline"
-                                  className="bg-amber-50 border-amber-200 text-amber-800"
-                                >
-                                  {ingredient}
-                                </Badge>
-                              ))}
+                            <h3 className="text-sm font-medium mb-2 text-orange-800">
+                              {t("ingredients")}:
+                            </h3>
+                            <div className="flex flex-wrap gap-1.5 mt-2">
+                              {translatedItem.ingredients
+                                .slice(0, 4)
+                                .map((ingredient, idx) => (
+                                  <Badge
+                                    key={idx}
+                                    variant="outline"
+                                    className="bg-amber-50 border-amber-200 text-amber-800"
+                                  >
+                                    {ingredient}
+                                  </Badge>
+                                ))}
                               {translatedItem.ingredients.length > 4 && (
-                                <Badge variant="outline" className="bg-orange-50 border-orange-200 text-orange-700">
-                                  +{translatedItem.ingredients.length - 4} {t("more")}
+                                <Badge
+                                  variant="outline"
+                                  className="bg-orange-50 border-orange-200 text-orange-700"
+                                >
+                                  +{translatedItem.ingredients.length - 4}{" "}
+                                  {t("more")}
                                 </Badge>
                               )}
                             </div>
                           </div>
 
-                          <div className="flex items-center justify-between">
-                            <Label htmlFor={`available-${item.id}`} className="text-sm font-medium text-orange-800">
+                          <div className="flex items-center justify-between mt-3">
+                            <Label
+                              htmlFor={`available-${item.id}`}
+                              className="text-sm font-medium text-orange-800"
+                            >
                               {t("availableForDinner")}
                             </Label>
                             <Switch
                               id={`available-${item.id}`}
                               checked={item.available}
-                              onCheckedChange={() => toggleAvailability(item.id)}
+                              onCheckedChange={() =>
+                                toggleAvailability(item.id)
+                              }
                             />
                           </div>
                         </CardContent>
@@ -245,13 +309,13 @@ export default function MenuPage() {
                           </Button>
 
                           <div className="flex items-center gap-2">
-                            {item.comments.length > 0 && (
+                            {item.comments && item.comments.length > 0 && (
                               <div className="flex items-center gap-1 text-sm text-amber-700">
                                 <MessageSquare className="h-4 w-4" />
                                 <span>{item.comments.length}</span>
                               </div>
                             )}
-                            {currentUser && !currentUser.isGuest && (
+                            {currentUser && !currentUser.is_guest && (
                               <Button
                                 variant="outline"
                                 size="sm"
@@ -264,7 +328,7 @@ export default function MenuPage() {
                           </div>
                         </CardFooter>
                       </Card>
-                    )
+                    );
                   })}
               </div>
             </TabsContent>
@@ -273,36 +337,57 @@ export default function MenuPage() {
 
         {/* Summary of votes */}
         <Card className="mb-8 border-orange-200 shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-orange-100 to-amber-100">
+          <CardHeader className="bg-gradient-to-r from-orange-100 to-amber-100 py-4">
             <CardTitle className="flex items-center gap-2 text-orange-900">
-              <ChefHat className="h-6 w-6" />
+              <ChefHat className="h-5 w-5 sm:h-6 sm:w-6" />
               {t("tonightSelections")}
             </CardTitle>
           </CardHeader>
-          <CardContent className="bg-white">
+          <CardContent className="bg-white p-4 sm:p-6">
             <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <Avatar className="border-2 border-orange-300">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <Avatar className="h-12 w-12 border-2 border-orange-300">
                   <AvatarImage src="/placeholder.svg" alt={userDisplayName} />
-                  <AvatarFallback className="bg-orange-200 text-orange-800">{userDisplayName[0]}</AvatarFallback>
+                  <AvatarFallback className="bg-orange-200 text-orange-800">
+                    {userDisplayName[0]}
+                  </AvatarFallback>
                 </Avatar>
-                <div>
+                <div className="flex-1">
                   <p className="font-medium text-orange-900">
                     {userDisplayName} {t("selected2")}
                   </p>
-                  <div className="flex flex-wrap gap-2 mt-1">
+                  <div className="flex flex-wrap gap-2 mt-2">
                     {menuItems
-                      .filter((item) => item.selections.includes(userDisplayName) && item.available)
+                      .filter(
+                        (item) =>
+                          item.selections &&
+                          item.selections.some(
+                            (s) => s.member_name === userDisplayName
+                          ) &&
+                          item.available
+                      )
                       .map((item) => {
-                        const translatedItem = getTranslatedDish(item)
+                        const translatedItem = getTranslatedDish(item);
                         return (
-                          <Badge key={item.id} className="bg-gradient-to-r from-green-400 to-emerald-400 text-white">
+                          <Badge
+                            key={item.id}
+                            className="bg-gradient-to-r from-green-400 to-emerald-400 text-white"
+                          >
                             {translatedItem.name}
                           </Badge>
-                        )
+                        );
                       })}
-                    {!menuItems.some((item) => item.selections.includes(userDisplayName) && item.available) && (
-                      <span className="text-sm text-amber-600 italic">{t("noSelections")}</span>
+                    {!menuItems.some(
+                      (item) =>
+                        item.selections &&
+                        item.selections.some(
+                          (s) => s.member_name === userDisplayName
+                        ) &&
+                        item.available
+                    ) && (
+                      <span className="text-sm text-amber-600 italic">
+                        {t("noSelections")}
+                      </span>
                     )}
                   </div>
                 </div>
@@ -314,14 +399,14 @@ export default function MenuPage() {
         {/* Add new dish button */}
         <div className="text-center mb-8">
           <Button
-            className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-lg text-lg px-8 py-3"
+            className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-lg text-base sm:text-lg px-6 sm:px-8 py-2.5 sm:py-3"
             onClick={() => router.push("/add-dish")}
           >
-            <Plus className="h-5 w-5" />
+            <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
             {t("addNewDish")}
           </Button>
         </div>
       </div>
     </div>
-  )
+  );
 }

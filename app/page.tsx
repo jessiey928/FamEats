@@ -1,22 +1,22 @@
-"use client"
+"use client";
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { useApp } from "@/lib/context"
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useApp } from "@/lib/context";
 
 export default function HomePage() {
-  const { currentUser } = useApp()
-  const router = useRouter()
+  const { currentUser } = useApp();
+  const router = useRouter();
 
   useEffect(() => {
     // 如果用户已登录，重定向到菜单页面
     if (currentUser) {
-      router.replace("/menu")
+      router.replace("/menu");
     } else {
       // 如果用户未登录，重定向到登录页面
-      router.replace("/login")
+      router.replace("/login");
     }
-  }, [currentUser, router])
+  }, [currentUser, router]);
 
   // 显示加载状态
   return (
@@ -27,5 +27,5 @@ export default function HomePage() {
         <p className="text-orange-600">正在加载中...</p>
       </div>
     </div>
-  )
+  );
 }

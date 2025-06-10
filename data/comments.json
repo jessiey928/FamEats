@@ -1,0 +1,65 @@
+[
+  {
+    "dish_id": 1,
+    "user_id": 3,
+    "member_name": "Girlfriend",
+    "text": "Love the shrimp in this! Can we add more next time?",
+    "likes": 1,
+    "id": 1,
+    "created_at": "2025-06-09T14:42:28.577Z"
+  },
+  {
+    "dish_id": 3,
+    "user_id": 2,
+    "member_name": "You",
+    "text": "Takes too long to make on weekdays",
+    "likes": 0,
+    "id": 2,
+    "created_at": "2025-06-09T14:42:28.577Z"
+  },
+  {
+    "dish_id": 4,
+    "user_id": 3,
+    "member_name": "Girlfriend",
+    "text": "My absolute favorite! Perfect balance of sweet and sour",
+    "likes": 2,
+    "id": 3,
+    "created_at": "2025-06-09T14:42:28.577Z"
+  },
+  {
+    "dish_id": 5,
+    "user_id": 2,
+    "member_name": "You",
+    "text": "Love the numbing spice from Sichuan peppercorns!",
+    "likes": 1,
+    "id": 4,
+    "created_at": "2025-06-09T14:42:28.578Z"
+  },
+  {
+    "dish_id": 7,
+    "user_id": 3,
+    "member_name": "Girlfriend",
+    "text": "So comforting and flavorful!",
+    "likes": 1,
+    "id": 5,
+    "created_at": "2025-06-09T14:42:28.578Z"
+  },
+  {
+    "dish_id": 9,
+    "user_id": 2,
+    "member_name": "You",
+    "text": "Great texture when done right - crispy outside, tender inside",
+    "likes": 1,
+    "id": 6,
+    "created_at": "2025-06-09T14:42:28.578Z"
+  },
+  {
+    "dish_id": 11,
+    "user_id": 3,
+    "member_name": "Girlfriend",
+    "text": "Perfect with breakfast!",
+    "likes": 1,
+    "id": 7,
+    "created_at": "2025-06-09T14:42:28.578Z"
+  }
+]

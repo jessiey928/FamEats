@@ -1,33 +1,39 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { useTranslation } from "react-i18next"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowLeft, Plus, X, Upload, Globe, Home } from "lucide-react"
-import { useApp } from "@/lib/context"
-import i18n from "@/lib/i18n"
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+import { ArrowLeft, Plus, X, Upload, Globe, Home } from "lucide-react";
+import { useApp } from "@/lib/context";
+import i18n from "@/lib/i18n";
 
 export default function AddDishPage() {
-  const { t } = useTranslation()
-  const { currentUser, addMenuItem } = useApp()
-  const router = useRouter()
+  const { t } = useTranslation();
+  const { currentUser, addMenuItem } = useApp();
+  const router = useRouter();
 
   const [dishData, setDishData] = useState({
     name: "",
     category: "",
     image: "/placeholder.svg?height=200&width=300",
-    available: true,
-  })
-  const [ingredients, setIngredients] = useState<string[]>([])
-  const [newIngredient, setNewIngredient] = useState("")
-  const [showSuggestions, setShowSuggestions] = useState(false)
-  const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([])
+    available: true
+  });
+  const [ingredients, setIngredients] = useState<string[]>([]);
+  const [newIngredient, setNewIngredient] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
 
   // 双语食材建议
   const ingredientSuggestions = [
@@ -80,14 +86,14 @@ export default function AddDishPage() {
     "土豆",
     "胡萝卜",
     "青椒",
-    "西兰花",
-  ]
+    "西兰花"
+  ];
 
   useEffect(() => {
     if (!currentUser) {
-      router.replace("/login")
+      router.replace("/login");
     }
-  }, [currentUser, router])
+  }, [currentUser, router]);
 
   if (!currentUser) {
     return (
@@ -97,51 +103,54 @@ export default function AddDishPage() {
           <p className="text-orange-700">Loading...</p>
         </div>
       </div>
-    )
+    );
   }
 
   const handleIngredientChange = (value: string) => {
-    setNewIngredient(value)
+    setNewIngredient(value);
     if (value.trim()) {
       const filtered = ingredientSuggestions.filter(
-        (suggestion) => suggestion.toLowerCase().includes(value.toLowerCase()) && !ingredients.includes(suggestion),
-      )
-      setFilteredSuggestions(filtered.slice(0, 8))
-      setShowSuggestions(filtered.length > 0)
+        (suggestion) =>
+          suggestion.toLowerCase().includes(value.toLowerCase()) &&
+          !ingredients.includes(suggestion)
+      );
+      setFilteredSuggestions(filtered.slice(0, 8));
+      setShowSuggestions(filtered.length > 0);
     } else {
-      setShowSuggestions(false)
+      setShowSuggestions(false);
     }
-  }
+  };
 
   const addIngredient = (ingredient?: string) => {
-    const ingredientToAdd = ingredient || newIngredient.trim()
+    const ingredientToAdd = ingredient || newIngredient.trim();
     if (ingredientToAdd && !ingredients.includes(ingredientToAdd)) {
-      setIngredients([...ingredients, ingredientToAdd])
-      setNewIngredient("")
-      setShowSuggestions(false)
+      setIngredients([...ingredients, ingredientToAdd]);
+      setNewIngredient("");
+      setShowSuggestions(false);
     }
-  }
+  };
 
   const removeIngredient = (ingredient: string) => {
-    setIngredients(ingredients.filter((item) => item !== ingredient))
-  }
+    setIngredients(ingredients.filter((item) => item !== ingredient));
+  };
 
   const handleSave = () => {
     if (dishData.name && dishData.category && ingredients.length > 0) {
       addMenuItem({
         ...dishData,
-        ingredients,
-      })
-      router.push("/menu")
+        ingredients
+      });
+      router.push("/menu");
     }
-  }
+  };
 
   const toggleLanguage = () => {
-    const newLanguage = i18n.language === "en" ? "zh" : "en"
-    i18n.changeLanguage(newLanguage)
-  }
+    const newLanguage = i18n.language === "en" ? "zh" : "en";
+    i18n.changeLanguage(newLanguage);
+  };
 
-  const isFormValid = dishData.name && dishData.category && ingredients.length > 0
+  const isFormValid =
+    dishData.name && dishData.category && ingredients.length > 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50 p-4">
@@ -189,7 +198,9 @@ export default function AddDishPage() {
             {/* Basic Info */}
             <Card className="border-orange-200 shadow-lg">
               <CardHeader className="bg-gradient-to-r from-orange-100 to-amber-100">
-                <CardTitle className="text-orange-900">{t("basicInfo")}</CardTitle>
+                <CardTitle className="text-orange-900">
+                  {t("basicInfo")}
+                </CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
                 <div>
@@ -200,18 +211,25 @@ export default function AddDishPage() {
                     id="name"
                     placeholder={t("dishNamePlaceholder")}
                     value={dishData.name}
-                    onChange={(e) => setDishData({ ...dishData, name: e.target.value })}
+                    onChange={(e) =>
+                      setDishData({ ...dishData, name: e.target.value })
+                    }
                     className="border-orange-200 focus:border-orange-400"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="category" className="text-orange-800 font-medium">
+                  <Label
+                    htmlFor="category"
+                    className="text-orange-800 font-medium"
+                  >
                     {t("category2")}
                   </Label>
                   <Select
                     value={dishData.category}
-                    onValueChange={(value) => setDishData({ ...dishData, category: value })}
+                    onValueChange={(value) =>
+                      setDishData({ ...dishData, category: value })
+                    }
                   >
                     <SelectTrigger className="border-orange-200 focus:border-orange-400">
                       <SelectValue placeholder={t("selectCategory")} />
@@ -219,7 +237,9 @@ export default function AddDishPage() {
                     <SelectContent>
                       <SelectItem value="staple">{t("staple")}</SelectItem>
                       <SelectItem value="meat">{t("meat")}</SelectItem>
-                      <SelectItem value="vegetable">{t("vegetable")}</SelectItem>
+                      <SelectItem value="vegetable">
+                        {t("vegetable")}
+                      </SelectItem>
                       <SelectItem value="drink">{t("drink")}</SelectItem>
                     </SelectContent>
                   </Select>
@@ -230,7 +250,9 @@ export default function AddDishPage() {
             {/* Ingredients */}
             <Card className="border-orange-200 shadow-lg">
               <CardHeader className="bg-gradient-to-r from-orange-100 to-amber-100">
-                <CardTitle className="text-orange-900">{t("ingredients")}</CardTitle>
+                <CardTitle className="text-orange-900">
+                  {t("ingredients")}
+                </CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
                 <div className="relative">
@@ -241,8 +263,13 @@ export default function AddDishPage() {
                         value={newIngredient}
                         onChange={(e) => handleIngredientChange(e.target.value)}
                         onKeyPress={(e) => e.key === "Enter" && addIngredient()}
-                        onFocus={() => newIngredient.trim() && setShowSuggestions(filteredSuggestions.length > 0)}
-                        onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                        onFocus={() =>
+                          newIngredient.trim() &&
+                          setShowSuggestions(filteredSuggestions.length > 0)
+                        }
+                        onBlur={() =>
+                          setTimeout(() => setShowSuggestions(false), 200)
+                        }
                         className="border-orange-200 focus:border-orange-400"
                       />
                       {showSuggestions && (
@@ -270,10 +297,16 @@ export default function AddDishPage() {
 
                 {ingredients.length > 0 && (
                   <div className="space-y-2">
-                    <Label className="text-orange-800 font-medium">{t("addedIngredients")}</Label>
+                    <Label className="text-orange-800 font-medium">
+                      {t("addedIngredients")}
+                    </Label>
                     <div className="flex flex-wrap gap-2">
                       {ingredients.map((ingredient, idx) => (
-                        <Badge key={idx} variant="outline" className="bg-amber-50 border-amber-200 text-amber-800 pr-1">
+                        <Badge
+                          key={idx}
+                          variant="outline"
+                          className="bg-amber-50 border-amber-200 text-amber-800 pr-1"
+                        >
                           {ingredient}
                           <Button
                             variant="ghost"
@@ -297,14 +330,19 @@ export default function AddDishPage() {
             {/* Image Upload */}
             <Card className="border-orange-200 shadow-lg">
               <CardHeader className="bg-gradient-to-r from-orange-100 to-amber-100">
-                <CardTitle className="text-orange-900">{t("dishPhoto")}</CardTitle>
+                <CardTitle className="text-orange-900">
+                  {t("dishPhoto")}
+                </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="border-2 border-dashed border-orange-300 rounded-lg p-8 text-center bg-orange-50">
                   <Upload className="h-12 w-12 text-orange-400 mx-auto mb-4" />
                   <p className="text-orange-700 mb-2">{t("uploadPhoto")}</p>
                   <p className="text-sm text-orange-600">{t("browseOrDrag")}</p>
-                  <Button variant="outline" className="mt-4 border-orange-300 text-orange-700 hover:bg-orange-100">
+                  <Button
+                    variant="outline"
+                    className="mt-4 border-orange-300 text-orange-700 hover:bg-orange-100"
+                  >
                     {t("choosePhoto")}
                   </Button>
                 </div>
@@ -314,7 +352,9 @@ export default function AddDishPage() {
             {/* Preview */}
             <Card className="border-orange-200 shadow-lg">
               <CardHeader className="bg-gradient-to-r from-orange-100 to-amber-100">
-                <CardTitle className="text-orange-900">{t("preview")}</CardTitle>
+                <CardTitle className="text-orange-900">
+                  {t("preview")}
+                </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="border border-orange-200 rounded-lg overflow-hidden">
@@ -324,17 +364,24 @@ export default function AddDishPage() {
                     className="w-full h-48 object-cover"
                   />
                   <div className="p-4 space-y-3">
-                    <h3 className="font-bold text-orange-900">{dishData.name || t("dishNamePreview")}</h3>
+                    <h3 className="font-bold text-orange-900">
+                      {dishData.name || t("dishNamePreview")}
+                    </h3>
                     <div className="flex items-center gap-2 text-sm text-amber-700">
                       {dishData.category && (
-                        <Badge variant="outline" className="bg-amber-50 border-amber-200 text-amber-800">
+                        <Badge
+                          variant="outline"
+                          className="bg-amber-50 border-amber-200 text-amber-800"
+                        >
                           {dishData.category}
                         </Badge>
                       )}
                     </div>
                     {Array.isArray(ingredients) && ingredients.length > 0 && (
                       <div>
-                        <p className="text-sm font-medium text-orange-800 mb-1">{t("ingredients")}:</p>
+                        <p className="text-sm font-medium text-orange-800 mb-1">
+                          {t("ingredients")}:
+                        </p>
                         <div className="flex flex-wrap gap-1">
                           {ingredients.slice(0, 3).map((ingredient, idx) => (
                             <Badge
@@ -346,7 +393,10 @@ export default function AddDishPage() {
                             </Badge>
                           ))}
                           {ingredients.length > 3 && (
-                            <Badge variant="outline" className="bg-gray-50 border-gray-200 text-gray-600 text-xs">
+                            <Badge
+                              variant="outline"
+                              className="bg-gray-50 border-gray-200 text-gray-600 text-xs"
+                            >
                               +{ingredients.length - 3} {t("more")}
                             </Badge>
                           )}
@@ -370,5 +420,5 @@ export default function AddDishPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

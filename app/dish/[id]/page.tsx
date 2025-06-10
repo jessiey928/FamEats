@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
-import { useTranslation } from "react-i18next"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -12,11 +11,11 @@ import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { ThumbsUp, MessageSquare, ArrowLeft, Check, Plus, Globe, Edit, Trash2, Home } from "lucide-react"
 import { useApp } from "@/lib/context"
-import i18n from "@/lib/i18n"
+import { useLanguage } from "@/lib/language-context"
 
 export default function DishDetailsPage() {
-  const { t } = useTranslation()
-  const { currentUser, menuItems, updateMenuItem, getTranslatedDish } = useApp()
+  const { t, language, toggleLanguage } = useLanguage()
+  const { currentUser, menuItems, updateMenuItem, getTranslatedDish, addComment, toggleSelection } = useApp()
   const router = useRouter()
   const params = useParams()
   const dishId = Number.parseInt(params.id as string)
@@ -24,6 +23,7 @@ export default function DishDetailsPage() {
   const [newComment, setNewComment] = useState("")
   const [editingCommentIndex, setEditingCommentIndex] = useState<number | null>(null)
   const [editingCommentText, setEditingCommentText] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     if (!currentUser) {
@@ -64,64 +64,44 @@ export default function DishDetailsPage() {
   }
 
   const translatedDish = getTranslatedDish(dish)
-  const currentUserName = currentUser.displayName || currentUser.username
-  const isAdmin = !currentUser.isGuest
+  const userDisplayName = currentUser.display_name || currentUser.username
+  const isAdmin = !currentUser.is_guest
+  const hasSelected = dish.selections && dish.selections.some((s) => s.member_name === userDisplayName)
 
-  const addComment = () => {
+  const handleAddComment = async () => {
     if (!newComment.trim()) return
+    setIsSubmitting(true)
 
-    const updatedDish = {
-      ...dish,
-      comments: [...dish.comments, { member: currentUserName, text: newComment, likes: 0 }],
-    }
-    updateMenuItem(updatedDish)
+    await addComment(dish.id, newComment)
     setNewComment("")
+    setIsSubmitting(false)
   }
 
-  const toggleSelection = () => {
-    const hasSelected = dish.selections.includes(currentUserName)
-    const updatedDish = {
-      ...dish,
-      selections: hasSelected
-        ? dish.selections.filter((selector: string) => selector !== currentUserName)
-        : [...dish.selections, currentUserName],
-    }
-    updateMenuItem(updatedDish)
+  const handleToggleSelection = async () => {
+    await toggleSelection(dish.id)
   }
 
-  const toggleAvailability = () => {
-    const updatedDish = {
+  const toggleAvailability = async () => {
+    await updateMenuItem({
       ...dish,
       available: !dish.available,
-    }
-    updateMenuItem(updatedDish)
+    })
   }
 
-  const likeComment = (commentIndex: number) => {
-    const updatedComments = dish.comments.map((comment: any, index: number) =>
-      index === commentIndex ? { ...comment, likes: comment.likes + 1 } : comment,
-    )
-    const updatedDish = {
-      ...dish,
-      comments: updatedComments,
-    }
-    updateMenuItem(updatedDish)
+  const likeComment = async (commentId: number) => {
+    // 实现点赞功能
+    // 这里需要添加API调用
   }
 
   const editComment = (commentIndex: number) => {
+    if (!dish.comments || !dish.comments[commentIndex]) return
     setEditingCommentIndex(commentIndex)
     setEditingCommentText(dish.comments[commentIndex].text)
   }
 
-  const saveEditComment = (commentIndex: number) => {
-    const updatedComments = dish.comments.map((comment: any, index: number) =>
-      index === commentIndex ? { ...comment, text: editingCommentText } : comment,
-    )
-    const updatedDish = {
-      ...dish,
-      comments: updatedComments,
-    }
-    updateMenuItem(updatedDish)
+  const saveEditComment = async (commentId: number) => {
+    // 实现保存编辑评论功能
+    // 这里需要添加API调用
     setEditingCommentIndex(null)
     setEditingCommentText("")
   }
@@ -131,26 +111,17 @@ export default function DishDetailsPage() {
     setEditingCommentText("")
   }
 
-  const deleteComment = (commentIndex: number) => {
-    const updatedComments = dish.comments.filter((_: any, index: number) => index !== commentIndex)
-    const updatedDish = {
-      ...dish,
-      comments: updatedComments,
-    }
-    updateMenuItem(updatedDish)
-  }
-
-  const toggleLanguage = () => {
-    const newLanguage = i18n.language === "en" ? "zh" : "en"
-    i18n.changeLanguage(newLanguage)
+  const deleteComment = async (commentId: number) => {
+    // 实现删除评论功能
+    // 这里需要添加API调用
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50 p-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <div className="flex flex-wrap items-center gap-3">
             <Button
               variant="outline"
               className="border-orange-300 text-orange-700 hover:bg-orange-50"
@@ -175,7 +146,7 @@ export default function DishDetailsPage() {
             className="border-orange-300 text-orange-700 hover:bg-orange-50"
           >
             <Globe className="h-4 w-4 mr-2" />
-            {i18n.language === "en" ? "中文" : "English"}
+            {language === "en" ? "中文" : "English"}
           </Button>
         </div>
 
@@ -185,7 +156,7 @@ export default function DishDetailsPage() {
             <img
               src={translatedDish.image || "/placeholder.svg"}
               alt={translatedDish.name}
-              className="w-full h-64 object-cover rounded-t-lg"
+              className="w-full h-48 sm:h-64 object-cover rounded-t-lg"
             />
             {translatedDish.available ? (
               <Badge className="absolute top-4 right-4 bg-green-500 hover:bg-green-600 shadow-lg">
@@ -197,27 +168,27 @@ export default function DishDetailsPage() {
               </Badge>
             )}
           </div>
-          <CardHeader className="bg-gradient-to-r from-orange-100 to-amber-100">
-            <div className="flex justify-between items-start">
+          <CardHeader className="bg-gradient-to-r from-orange-100 to-amber-100 py-4 px-4 sm:px-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
               <div>
-                <CardTitle className="text-3xl mb-2 text-orange-900">{translatedDish.name}</CardTitle>
+                <CardTitle className="text-2xl sm:text-3xl mb-2 text-orange-900">{translatedDish.name}</CardTitle>
                 <div className="flex items-center gap-4 text-amber-700">
                   <Badge variant="outline" className="capitalize bg-amber-50 border-amber-200 text-amber-800">
-                    {translatedDish.category}
+                    {t(translatedDish.category)}
                   </Badge>
                 </div>
               </div>
               <Button
                 size="lg"
                 className={`shadow-lg font-medium ${
-                  translatedDish.selections.includes(currentUserName)
+                  hasSelected
                     ? "bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white"
                     : "bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white"
                 }`}
-                onClick={toggleSelection}
+                onClick={handleToggleSelection}
                 disabled={!translatedDish.available}
               >
-                {translatedDish.selections.includes(currentUserName) ? (
+                {hasSelected ? (
                   <>
                     <Check className="h-5 w-5 mr-2" />
                     {t("selected3")}
@@ -238,10 +209,10 @@ export default function DishDetailsPage() {
           <div className="lg:col-span-2 space-y-6">
             {/* Ingredients */}
             <Card className="border-orange-200 shadow-lg">
-              <CardHeader className="bg-gradient-to-r from-orange-100 to-amber-100">
+              <CardHeader className="bg-gradient-to-r from-orange-100 to-amber-100 py-4 px-4 sm:px-6">
                 <CardTitle className="text-orange-900">{t("ingredients2")}</CardTitle>
               </CardHeader>
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {Array.isArray(translatedDish.ingredients) &&
                     translatedDish.ingredients.map((ingredient: string, idx: number) => (
@@ -259,16 +230,16 @@ export default function DishDetailsPage() {
 
             {/* Comments Section */}
             <Card className="border-orange-200 shadow-lg">
-              <CardHeader className="bg-gradient-to-r from-orange-100 to-amber-100">
+              <CardHeader className="bg-gradient-to-r from-orange-100 to-amber-100 py-4 px-4 sm:px-6">
                 <CardTitle className="flex items-center gap-2 text-orange-900">
                   <MessageSquare className="h-5 w-5" />
-                  {t("commentsNotes")} ({translatedDish.comments.length}) 💬
+                  {t("commentsNotes")} ({dish.comments ? dish.comments.length : 0}) 💬
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-6 space-y-4">
-                {translatedDish.comments.length > 0 ? (
+              <CardContent className="p-4 sm:p-6 space-y-4">
+                {dish.comments && dish.comments.length > 0 ? (
                   <div className="space-y-4">
-                    {translatedDish.comments.map((comment: any, idx: number) => (
+                    {dish.comments.map((comment: any, idx: number) => (
                       <div
                         key={idx}
                         className="bg-gradient-to-r from-orange-50 to-amber-50 p-4 rounded-lg border border-orange-200"
@@ -277,22 +248,22 @@ export default function DishDetailsPage() {
                           <div className="flex items-center gap-2">
                             <Avatar className="h-8 w-8 border-2 border-orange-300">
                               <AvatarFallback className="bg-orange-200 text-orange-800">
-                                {comment.member[0]}
+                                {comment.member_name[0]}
                               </AvatarFallback>
                             </Avatar>
-                            <span className="font-medium text-orange-900">{comment.member}</span>
+                            <span className="font-medium text-orange-900">{comment.member_name}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <Button
                               variant="ghost"
                               size="sm"
                               className="flex items-center gap-1 text-amber-600 hover:text-orange-600 hover:bg-orange-100"
-                              onClick={() => likeComment(idx)}
+                              onClick={() => likeComment(comment.id)}
                             >
                               <ThumbsUp className="h-4 w-4" />
                               <span>{comment.likes}</span>
                             </Button>
-                            {(comment.member === currentUserName || isAdmin) && (
+                            {(comment.member_name === userDisplayName || isAdmin) && (
                               <div className="flex gap-1">
                                 <Button
                                   variant="ghost"
@@ -306,7 +277,7 @@ export default function DishDetailsPage() {
                                   variant="ghost"
                                   size="sm"
                                   className="text-red-600 hover:bg-red-50"
-                                  onClick={() => deleteComment(idx)}
+                                  onClick={() => deleteComment(comment.id)}
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
@@ -325,7 +296,7 @@ export default function DishDetailsPage() {
                             <div className="flex gap-2">
                               <Button
                                 size="sm"
-                                onClick={() => saveEditComment(idx)}
+                                onClick={() => saveEditComment(comment.id)}
                                 className="bg-green-500 hover:bg-green-600 text-white"
                               >
                                 {t("save")}
@@ -351,7 +322,7 @@ export default function DishDetailsPage() {
                 )}
 
                 {/* Add Comment Form */}
-                <div className="border-t border-orange-200 pt-4">
+                <div className="border-t border-orange-200 pt-4 mt-4">
                   <div className="space-y-3">
                     <Label htmlFor="comment" className="text-orange-800 font-medium">
                       {t("addComment")}
@@ -366,12 +337,12 @@ export default function DishDetailsPage() {
                     />
                     <div className="flex justify-end">
                       <Button
-                        onClick={addComment}
-                        disabled={!newComment.trim()}
+                        onClick={handleAddComment}
+                        disabled={!newComment.trim() || isSubmitting}
                         className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white"
                       >
                         <MessageSquare className="h-4 w-4 mr-2" />
-                        {t("postComment")}
+                        {isSubmitting ? "Posting..." : t("postComment")}
                       </Button>
                     </div>
                   </div>
@@ -384,10 +355,10 @@ export default function DishDetailsPage() {
           <div className="space-y-6">
             {/* Availability Control */}
             <Card className="border-orange-200 shadow-lg">
-              <CardHeader className="bg-gradient-to-r from-orange-100 to-amber-100">
+              <CardHeader className="bg-gradient-to-r from-orange-100 to-amber-100 py-4 px-4 sm:px-6">
                 <CardTitle className="text-orange-900">{t("availability")}</CardTitle>
               </CardHeader>
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="available" className="font-medium text-orange-800">
                     {t("availableForDinner")}
@@ -402,22 +373,24 @@ export default function DishDetailsPage() {
 
             {/* Who Selected This */}
             <Card className="border-orange-200 shadow-lg">
-              <CardHeader className="bg-gradient-to-r from-orange-100 to-amber-100">
+              <CardHeader className="bg-gradient-to-r from-orange-100 to-amber-100 py-4 px-4 sm:px-6">
                 <CardTitle className="text-orange-900">{t("familySelections")}</CardTitle>
               </CardHeader>
-              <CardContent className="p-6">
-                {translatedDish.selections.length > 0 ? (
+              <CardContent className="p-4 sm:p-6">
+                {dish.selections && dish.selections.length > 0 ? (
                   <div className="space-y-3">
-                    {translatedDish.selections.map((member: string, idx: number) => (
+                    {dish.selections.map((selection: any, idx: number) => (
                       <div
                         key={idx}
                         className="flex items-center gap-2 p-2 bg-green-50 rounded-lg border border-green-200"
                       >
                         <Avatar className="h-6 w-6 border-2 border-green-300">
-                          <AvatarFallback className="text-xs bg-green-200 text-green-800">{member[0]}</AvatarFallback>
+                          <AvatarFallback className="text-xs bg-green-200 text-green-800">
+                            {selection.member_name[0]}
+                          </AvatarFallback>
                         </Avatar>
                         <span className="text-sm text-green-800 font-medium">
-                          {member} {t("wantsThisDish")}
+                          {selection.member_name} {t("wantsThisDish")}
                         </span>
                       </div>
                     ))}
@@ -430,14 +403,14 @@ export default function DishDetailsPage() {
 
             {/* Quick Stats */}
             <Card className="border-orange-200 shadow-lg">
-              <CardHeader className="bg-gradient-to-r from-orange-100 to-amber-100">
+              <CardHeader className="bg-gradient-to-r from-orange-100 to-amber-100 py-4 px-4 sm:px-6">
                 <CardTitle className="text-orange-900">{t("quickInfo")}</CardTitle>
               </CardHeader>
-              <CardContent className="p-6 space-y-3">
+              <CardContent className="p-4 sm:p-6 space-y-3">
                 <div className="flex justify-between">
                   <span className="text-sm text-amber-700">{t("category")}</span>
                   <Badge variant="outline" className="capitalize bg-amber-50 border-amber-200 text-amber-800">
-                    {translatedDish.category}
+                    {t(translatedDish.category)}
                   </Badge>
                 </div>
                 <div className="flex justify-between">
@@ -448,7 +421,9 @@ export default function DishDetailsPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-amber-700">{t("commentsCount")}</span>
-                  <span className="text-sm font-medium text-orange-900">{translatedDish.comments.length}</span>
+                  <span className="text-sm font-medium text-orange-900">
+                    {dish.comments ? dish.comments.length : 0}
+                  </span>
                 </div>
               </CardContent>
             </Card>
