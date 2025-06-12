@@ -191,7 +191,6 @@ export default function MenuPage() {
                       item.selections.some(
                         (s) => s.member_name === userDisplayName
                       );
-                    console.log(111, translatedItem);
 
                     return (
                       <Card

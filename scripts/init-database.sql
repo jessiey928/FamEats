@@ -47,6 +47,17 @@ CREATE TABLE IF NOT EXISTS selections (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+-- 创建点赞表
+CREATE TABLE IF NOT EXISTS likes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    comment_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(comment_id, user_id),
+    FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
 -- 插入默认用户
 INSERT OR IGNORE INTO users (username, password, display_name, is_guest) VALUES 
 ('admin', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin', FALSE),

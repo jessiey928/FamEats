@@ -1,35 +1,57 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useRouter, useParams } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
-import { ThumbsUp, MessageSquare, ArrowLeft, Check, Plus, Globe, Edit, Trash2, Home } from "lucide-react"
-import { useApp } from "@/lib/context"
-import { useLanguage } from "@/lib/language-context"
+import { useEffect, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import {
+  ThumbsUp,
+  MessageSquare,
+  ArrowLeft,
+  Check,
+  Plus,
+  Globe,
+  Edit,
+  Trash2,
+  Home
+} from "lucide-react";
+import { useApp } from "@/lib/context";
+import { useLanguage } from "@/lib/language-context";
 
 export default function DishDetailsPage() {
-  const { t, language, toggleLanguage } = useLanguage()
-  const { currentUser, menuItems, updateMenuItem, getTranslatedDish, addComment, toggleSelection } = useApp()
-  const router = useRouter()
-  const params = useParams()
-  const dishId = Number.parseInt(params.id as string)
+  const { t, language, toggleLanguage } = useLanguage();
+  const {
+    currentUser,
+    menuItems,
+    updateMenuItem,
+    getTranslatedDish,
+    addComment,
+    editComment,
+    deleteComment,
+    toggleSelection,
+    toggleCommentLike
+  } = useApp();
+  const router = useRouter();
+  const params = useParams();
+  const dishId = Number.parseInt(params.id as string);
 
-  const [newComment, setNewComment] = useState("")
-  const [editingCommentIndex, setEditingCommentIndex] = useState<number | null>(null)
-  const [editingCommentText, setEditingCommentText] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [newComment, setNewComment] = useState("");
+  const [editingCommentIndex, setEditingCommentIndex] = useState<number | null>(
+    null
+  );
+  const [editingCommentText, setEditingCommentText] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!currentUser) {
-      router.replace("/login")
+      router.replace("/login");
     }
-  }, [currentUser, router])
+  }, [currentUser, router]);
 
   if (!currentUser) {
     return (
@@ -39,82 +61,90 @@ export default function DishDetailsPage() {
           <p className="text-orange-700">Loading...</p>
         </div>
       </div>
-    )
+    );
   }
 
-  const dish = menuItems.find((item) => item.id === dishId)
+  const dish = menuItems.find((item) => item.id === dishId);
 
   if (!dish) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-orange-900 mb-4">{t("dishNotFound")}</h1>
+          <h1 className="text-2xl font-bold text-orange-900 mb-4">
+            {t("dishNotFound")}
+          </h1>
           <div className="flex gap-4 justify-center">
-            <Button onClick={() => router.push("/menu")} className="bg-orange-500 hover:bg-orange-600 text-white">
+            <Button
+              onClick={() => router.push("/menu")}
+              className="bg-orange-500 hover:bg-orange-600 text-white"
+            >
               {t("backToMenu")}
             </Button>
-            <Button onClick={() => router.push("/")} variant="outline" className="border-orange-300 text-orange-700">
+            <Button
+              onClick={() => router.push("/")}
+              variant="outline"
+              className="border-orange-300 text-orange-700"
+            >
               <Home className="h-4 w-4 mr-2" />
               首页
             </Button>
           </div>
         </div>
       </div>
-    )
+    );
   }
 
-  const translatedDish = getTranslatedDish(dish)
-  const userDisplayName = currentUser.display_name || currentUser.username
-  const isAdmin = !currentUser.is_guest
-  const hasSelected = dish.selections && dish.selections.some((s) => s.member_name === userDisplayName)
+  const translatedDish = getTranslatedDish(dish);
+  const userDisplayName = currentUser.display_name || currentUser.username;
+  const isAdmin = !currentUser.is_guest;
+  const hasSelected =
+    dish.selections &&
+    dish.selections.some((s) => s.member_name === userDisplayName);
 
   const handleAddComment = async () => {
-    if (!newComment.trim()) return
-    setIsSubmitting(true)
+    if (!newComment.trim()) return;
+    setIsSubmitting(true);
 
-    await addComment(dish.id, newComment)
-    setNewComment("")
-    setIsSubmitting(false)
-  }
+    await addComment(dish.id, newComment);
+    setNewComment("");
+    setIsSubmitting(false);
+  };
 
   const handleToggleSelection = async () => {
-    await toggleSelection(dish.id)
-  }
+    await toggleSelection(dish.id);
+  };
 
   const toggleAvailability = async () => {
     await updateMenuItem({
       ...dish,
-      available: !dish.available,
-    })
-  }
+      available: dish.available ? 0 : 1
+    });
+  };
 
-  const likeComment = async (commentId: number) => {
-    // 实现点赞功能
-    // 这里需要添加API调用
-  }
+  const handleLikeComment = async (commentId: number) => {
+    await toggleCommentLike(dish.id, commentId);
+  };
 
-  const editComment = (commentIndex: number) => {
-    if (!dish.comments || !dish.comments[commentIndex]) return
-    setEditingCommentIndex(commentIndex)
-    setEditingCommentText(dish.comments[commentIndex].text)
-  }
+  const handleEditComment = (commentIndex: number) => {
+    if (!dish.comments || !dish.comments[commentIndex]) return;
+    setEditingCommentIndex(commentIndex);
+    setEditingCommentText(dish.comments[commentIndex].text);
+  };
 
-  const saveEditComment = async (commentId: number) => {
-    // 实现保存编辑评论功能
-    // 这里需要添加API调用
-    setEditingCommentIndex(null)
-    setEditingCommentText("")
-  }
+  const handleSaveEditComment = async (commentId: number) => {
+    await editComment(dish.id, commentId, editingCommentText);
+    setEditingCommentIndex(null);
+    setEditingCommentText("");
+  };
 
   const cancelEditComment = () => {
-    setEditingCommentIndex(null)
-    setEditingCommentText("")
-  }
+    setEditingCommentIndex(null);
+    setEditingCommentText("");
+  };
 
-  const deleteComment = async (commentId: number) => {
-    // 实现删除评论功能
-    // 这里需要添加API调用
-  }
+  const handleDeleteComment = async (commentId: number) => {
+    await deleteComment(dish.id, commentId);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50 p-4">
@@ -163,7 +193,10 @@ export default function DishDetailsPage() {
                 {t("available")}
               </Badge>
             ) : (
-              <Badge variant="destructive" className="absolute top-4 right-4 shadow-lg">
+              <Badge
+                variant="destructive"
+                className="absolute top-4 right-4 shadow-lg"
+              >
                 {t("notAvailable")}
               </Badge>
             )}
@@ -171,9 +204,14 @@ export default function DishDetailsPage() {
           <CardHeader className="bg-gradient-to-r from-orange-100 to-amber-100 py-4 px-4 sm:px-6">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
               <div>
-                <CardTitle className="text-2xl sm:text-3xl mb-2 text-orange-900">{translatedDish.name}</CardTitle>
+                <CardTitle className="text-2xl sm:text-3xl mb-2 text-orange-900">
+                  {translatedDish.name}
+                </CardTitle>
                 <div className="flex items-center gap-4 text-amber-700">
-                  <Badge variant="outline" className="capitalize bg-amber-50 border-amber-200 text-amber-800">
+                  <Badge
+                    variant="outline"
+                    className="capitalize bg-amber-50 border-amber-200 text-amber-800"
+                  >
                     {t(translatedDish.category)}
                   </Badge>
                 </div>
@@ -210,20 +248,24 @@ export default function DishDetailsPage() {
             {/* Ingredients */}
             <Card className="border-orange-200 shadow-lg">
               <CardHeader className="bg-gradient-to-r from-orange-100 to-amber-100 py-4 px-4 sm:px-6">
-                <CardTitle className="text-orange-900">{t("ingredients2")}</CardTitle>
+                <CardTitle className="text-orange-900">
+                  {t("ingredients2")}
+                </CardTitle>
               </CardHeader>
               <CardContent className="p-4 sm:p-6">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {Array.isArray(translatedDish.ingredients) &&
-                    translatedDish.ingredients.map((ingredient: string, idx: number) => (
-                      <Badge
-                        key={idx}
-                        variant="outline"
-                        className="bg-amber-50 border-amber-200 text-amber-800 justify-center py-3 text-sm"
-                      >
-                        {ingredient}
-                      </Badge>
-                    ))}
+                    translatedDish.ingredients.map(
+                      (ingredient: string, idx: number) => (
+                        <Badge
+                          key={idx}
+                          variant="outline"
+                          className="bg-amber-50 border-amber-200 text-amber-800 justify-center py-3 text-sm"
+                        >
+                          {ingredient}
+                        </Badge>
+                      )
+                    )}
                 </div>
               </CardContent>
             </Card>
@@ -233,7 +275,8 @@ export default function DishDetailsPage() {
               <CardHeader className="bg-gradient-to-r from-orange-100 to-amber-100 py-4 px-4 sm:px-6">
                 <CardTitle className="flex items-center gap-2 text-orange-900">
                   <MessageSquare className="h-5 w-5" />
-                  {t("commentsNotes")} ({dish.comments ? dish.comments.length : 0}) 💬
+                  {t("commentsNotes")} (
+                  {dish.comments ? dish.comments.length : 0}) 💬
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4 sm:p-6 space-y-4">
@@ -251,25 +294,28 @@ export default function DishDetailsPage() {
                                 {comment.member_name[0]}
                               </AvatarFallback>
                             </Avatar>
-                            <span className="font-medium text-orange-900">{comment.member_name}</span>
+                            <span className="font-medium text-orange-900">
+                              {comment.member_name}
+                            </span>
                           </div>
                           <div className="flex items-center gap-2">
                             <Button
                               variant="ghost"
                               size="sm"
                               className="flex items-center gap-1 text-amber-600 hover:text-orange-600 hover:bg-orange-100"
-                              onClick={() => likeComment(comment.id)}
+                              onClick={() => handleLikeComment(comment.id)}
                             >
                               <ThumbsUp className="h-4 w-4" />
                               <span>{comment.likes}</span>
                             </Button>
-                            {(comment.member_name === userDisplayName || isAdmin) && (
+                            {(comment.member_name === userDisplayName ||
+                              isAdmin) && (
                               <div className="flex gap-1">
                                 <Button
                                   variant="ghost"
                                   size="sm"
                                   className="text-blue-600 hover:bg-blue-50"
-                                  onClick={() => editComment(idx)}
+                                  onClick={() => handleEditComment(idx)}
                                 >
                                   <Edit className="h-4 w-4" />
                                 </Button>
@@ -277,7 +323,9 @@ export default function DishDetailsPage() {
                                   variant="ghost"
                                   size="sm"
                                   className="text-red-600 hover:bg-red-50"
-                                  onClick={() => deleteComment(comment.id)}
+                                  onClick={() =>
+                                    handleDeleteComment(comment.id)
+                                  }
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
@@ -289,14 +337,18 @@ export default function DishDetailsPage() {
                           <div className="space-y-2">
                             <Textarea
                               value={editingCommentText}
-                              onChange={(e) => setEditingCommentText(e.target.value)}
+                              onChange={(e) =>
+                                setEditingCommentText(e.target.value)
+                              }
                               className="w-full border-orange-200 focus:border-orange-400"
                               rows={2}
                             />
                             <div className="flex gap-2">
                               <Button
                                 size="sm"
-                                onClick={() => saveEditComment(comment.id)}
+                                onClick={() =>
+                                  handleSaveEditComment(comment.id)
+                                }
                                 className="bg-green-500 hover:bg-green-600 text-white"
                               >
                                 {t("save")}
@@ -318,13 +370,18 @@ export default function DishDetailsPage() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-amber-600 italic text-center py-8">{t("noComments")}</p>
+                  <p className="text-amber-600 italic text-center py-8">
+                    {t("noComments")}
+                  </p>
                 )}
 
                 {/* Add Comment Form */}
                 <div className="border-t border-orange-200 pt-4 mt-4">
                   <div className="space-y-3">
-                    <Label htmlFor="comment" className="text-orange-800 font-medium">
+                    <Label
+                      htmlFor="comment"
+                      className="text-orange-800 font-medium"
+                    >
                       {t("addComment")}
                     </Label>
                     <Textarea
@@ -356,17 +413,28 @@ export default function DishDetailsPage() {
             {/* Availability Control */}
             <Card className="border-orange-200 shadow-lg">
               <CardHeader className="bg-gradient-to-r from-orange-100 to-amber-100 py-4 px-4 sm:px-6">
-                <CardTitle className="text-orange-900">{t("availability")}</CardTitle>
+                <CardTitle className="text-orange-900">
+                  {t("availability")}
+                </CardTitle>
               </CardHeader>
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="available" className="font-medium text-orange-800">
+                  <Label
+                    htmlFor="available"
+                    className="font-medium text-orange-800"
+                  >
                     {t("availableForDinner")}
                   </Label>
-                  <Switch id="available" checked={translatedDish.available} onCheckedChange={toggleAvailability} />
+                  <Switch
+                    id="available"
+                    checked={!!translatedDish.available}
+                    onCheckedChange={toggleAvailability}
+                  />
                 </div>
                 <p className="text-sm text-amber-600 mt-2">
-                  {translatedDish.available ? t("availableTonight") : t("notAvailableTonight")}
+                  {translatedDish.available
+                    ? t("availableTonight")
+                    : t("notAvailableTonight")}
                 </p>
               </CardContent>
             </Card>
@@ -374,7 +442,9 @@ export default function DishDetailsPage() {
             {/* Who Selected This */}
             <Card className="border-orange-200 shadow-lg">
               <CardHeader className="bg-gradient-to-r from-orange-100 to-amber-100 py-4 px-4 sm:px-6">
-                <CardTitle className="text-orange-900">{t("familySelections")}</CardTitle>
+                <CardTitle className="text-orange-900">
+                  {t("familySelections")}
+                </CardTitle>
               </CardHeader>
               <CardContent className="p-4 sm:p-6">
                 {dish.selections && dish.selections.length > 0 ? (
@@ -396,7 +466,9 @@ export default function DishDetailsPage() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-amber-600 text-sm italic">{t("noSelections2")}</p>
+                  <p className="text-amber-600 text-sm italic">
+                    {t("noSelections2")}
+                  </p>
                 )}
               </CardContent>
             </Card>
@@ -404,23 +476,37 @@ export default function DishDetailsPage() {
             {/* Quick Stats */}
             <Card className="border-orange-200 shadow-lg">
               <CardHeader className="bg-gradient-to-r from-orange-100 to-amber-100 py-4 px-4 sm:px-6">
-                <CardTitle className="text-orange-900">{t("quickInfo")}</CardTitle>
+                <CardTitle className="text-orange-900">
+                  {t("quickInfo")}
+                </CardTitle>
               </CardHeader>
               <CardContent className="p-4 sm:p-6 space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-sm text-amber-700">{t("category")}</span>
-                  <Badge variant="outline" className="capitalize bg-amber-50 border-amber-200 text-amber-800">
+                  <span className="text-sm text-amber-700">
+                    {t("category")}
+                  </span>
+                  <Badge
+                    variant="outline"
+                    className="capitalize bg-amber-50 border-amber-200 text-amber-800"
+                  >
                     {t(translatedDish.category)}
                   </Badge>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-amber-700">{t("ingredientsCount")}</span>
+                  <span className="text-sm text-amber-700">
+                    {t("ingredientsCount")}
+                  </span>
                   <span className="text-sm font-medium text-orange-900">
-                    {Array.isArray(translatedDish.ingredients) ? translatedDish.ingredients.length : 0} {t("items")}
+                    {Array.isArray(translatedDish.ingredients)
+                      ? translatedDish.ingredients.length
+                      : 0}{" "}
+                    {t("items")}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-amber-700">{t("commentsCount")}</span>
+                  <span className="text-sm text-amber-700">
+                    {t("commentsCount")}
+                  </span>
                   <span className="text-sm font-medium text-orange-900">
                     {dish.comments ? dish.comments.length : 0}
                   </span>
@@ -431,5 +517,5 @@ export default function DishDetailsPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

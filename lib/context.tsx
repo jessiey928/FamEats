@@ -19,7 +19,7 @@ interface AppContextType {
   updateMenuItem: (item: ParsedDish) => Promise<void>;
   addMenuItem: (
     item: Omit<
-      Dish,
+      ParsedDish,
       | "id"
       | "comments"
       | "selections"
@@ -35,6 +35,14 @@ interface AppContextType {
   logout: () => Promise<void>;
   toggleSelection: (dishId: number) => Promise<void>;
   addComment: (dishId: number, text: string) => Promise<void>;
+  editComment: (
+    dishId: number,
+    commentId: number,
+    text: string
+  ) => Promise<void>;
+  deleteComment: (dishId: number, commentId: number) => Promise<void>;
+  toggleCommentLike: (dishId: number, commentId: number) => Promise<void>;
+  uploadImage: (file: File) => Promise<string | null>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -157,7 +165,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const addMenuItem = async (
     item: Omit<
-      Dish,
+      ParsedDish,
       | "id"
       | "comments"
       | "selections"
@@ -226,6 +234,83 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const editComment = async (
+    dishId: number,
+    commentId: number,
+    text: string
+  ) => {
+    try {
+      const response = await fetch(
+        `/api/dishes/${dishId}/comments/${commentId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text })
+        }
+      );
+
+      if (response.ok) {
+        await refreshDishes(); // 刷新数据以获取最新的评论
+      }
+    } catch (error) {
+      console.error("Failed to edit comment:", error);
+    }
+  };
+
+  const deleteComment = async (dishId: number, commentId: number) => {
+    try {
+      const response = await fetch(
+        `/api/dishes/${dishId}/comments/${commentId}`,
+        {
+          method: "DELETE"
+        }
+      );
+      if (response.ok) {
+        await refreshDishes(); // 刷新数据以获取最新的评论
+      }
+    } catch (error) {
+      console.error("Failed to delete comment:", error);
+    }
+  };
+
+  // toggle likes status on comments
+  const toggleCommentLike = async (dishId: number, commentId: number) => {
+    try {
+      const response = await fetch(
+        `/api/dishes/${dishId}/comments/${commentId}/like`,
+        {
+          method: "POST"
+        }
+      );
+      if (response.ok) {
+        await refreshDishes(); // 刷新数据以获取最新的评论状态
+      }
+    } catch (error) {
+      console.error("Failed to toggle comment like:", error);
+    }
+  };
+
+  const uploadImage = async (file: File): Promise<string | null> => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return data.path;
+      } else {
+        console.error("Image upload failed:", response.statusText);
+        return null;
+      }
+    } catch (error) {
+      console.error("Image upload error:", error);
+      return null;
+    }
+  };
+
   // 简化的翻译函数
   const getTranslatedDish = (dish: ParsedDish): ParsedDish => {
     try {
@@ -256,7 +341,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         guestLogin,
         logout,
         toggleSelection,
-        addComment
+        addComment,
+        editComment,
+        deleteComment,
+        toggleCommentLike,
+        uploadImage
       }}
     >
       {children}

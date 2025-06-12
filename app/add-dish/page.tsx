@@ -21,14 +21,14 @@ import i18n from "@/lib/i18n";
 
 export default function AddDishPage() {
   const { t } = useTranslation();
-  const { currentUser, addMenuItem } = useApp();
+  const { currentUser, addMenuItem, uploadImage } = useApp();
   const router = useRouter();
 
   const [dishData, setDishData] = useState({
     name: "",
     category: "",
     image: "/placeholder.svg?height=200&width=300",
-    available: true
+    available: 1 as 1 | 0
   });
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [newIngredient, setNewIngredient] = useState("");
@@ -142,6 +142,24 @@ export default function AddDishPage() {
       });
       router.push("/menu");
     }
+  };
+
+  const handleUploadImage = async () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        const imageUrl = await uploadImage(file);
+        if (imageUrl) {
+          setDishData({ ...dishData, image: imageUrl });
+        } else {
+          console.error("Image upload failed");
+        }
+      }
+    };
+    input.click();
   };
 
   const toggleLanguage = () => {
@@ -262,7 +280,7 @@ export default function AddDishPage() {
                         placeholder={t("addIngredient")}
                         value={newIngredient}
                         onChange={(e) => handleIngredientChange(e.target.value)}
-                        onKeyPress={(e) => e.key === "Enter" && addIngredient()}
+                        onKeyDown={(e) => e.key === "Enter" && addIngredient()}
                         onFocus={() =>
                           newIngredient.trim() &&
                           setShowSuggestions(filteredSuggestions.length > 0)
@@ -342,6 +360,7 @@ export default function AddDishPage() {
                   <Button
                     variant="outline"
                     className="mt-4 border-orange-300 text-orange-700 hover:bg-orange-100"
+                    onClick={handleUploadImage}
                   >
                     {t("choosePhoto")}
                   </Button>

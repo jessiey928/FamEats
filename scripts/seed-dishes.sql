@@ -11,12 +11,3 @@ INSERT OR IGNORE INTO dishes (id, name, image, category, ingredients, available,
 (10, 'Jasmine Tea', '/placeholder.svg?height=200&width=300', 'drink', '["Jasmine tea leaves", "Hot water"]', TRUE, 1),
 (11, 'Soy Milk', '/placeholder.svg?height=200&width=300', 'drink', '["Soybeans", "Water", "Sugar (optional)"]', TRUE, 1);
 
--- 插入一些示例评论
-INSERT OR IGNORE INTO comments (id, dish_id, user_id, member_name, text, likes) VALUES 
-(1, 1, 3, 'Girlfriend', 'Love the shrimp in this! Can we add more next time?', 1),
-(2, 3, 2, 'You', 'Takes too long to make on weekdays', 0),
-(3, 4, 3, 'Girlfriend', 'My absolute favorite! Perfect balance of sweet and sour', 2),
-(4, 5, 2, 'You', 'Love the numbing spice from Sichuan peppercorns!', 1),
-(5, 7, 3, 'Girlfriend', 'So comforting and flavorful!', 1),
-(6, 9, 2, 'You', 'Great texture when done right - crispy outside, tender inside', 1),
-(7, 11, 3, 'Girlfriend', 'Perfect with breakfast!', 1);
