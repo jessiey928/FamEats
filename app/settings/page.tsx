@@ -1,28 +1,35 @@
-"use client"
+"use client";
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { useTranslation } from "react-i18next"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
-import { ArrowLeft, Globe, LogOut, Home, User, SettingsIcon } from "lucide-react"
-import { useApp } from "@/lib/context"
-import i18n from "@/lib/i18n"
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import {
+  ArrowLeft,
+  Globe,
+  LogOut,
+  Home,
+  User,
+  SettingsIcon
+} from "lucide-react";
+import { useApp } from "@/lib/context/AppProvider";
+import i18n from "@/lib/i18n";
 
 export default function SettingsPage() {
-  const { t } = useTranslation("common")
-  const { currentUser, setCurrentUser } = useApp()
-  const router = useRouter()
+  const { t } = useTranslation("common");
+  const { currentUser, setCurrentUser } = useApp();
+  const router = useRouter();
 
   useEffect(() => {
     if (!currentUser) {
-      router.replace("/login")
+      router.replace("/login");
     }
-  }, [currentUser, router])
+  }, [currentUser, router]);
 
   if (!currentUser) {
     return (
@@ -32,20 +39,20 @@ export default function SettingsPage() {
           <p className="text-orange-700">Loading...</p>
         </div>
       </div>
-    )
+    );
   }
 
   const handleLogout = () => {
-    setCurrentUser(null)
-    router.push("/login")
-  }
+    setCurrentUser(null);
+    router.push("/login");
+  };
 
   const toggleLanguage = () => {
-    const newLanguage = i18n.language === "en" ? "zh" : "en"
-    i18n.changeLanguage(newLanguage)
-  }
+    const newLanguage = i18n.language === "en" ? "zh" : "en";
+    i18n.changeLanguage(newLanguage);
+  };
 
-  const userDisplayName = currentUser.displayName || currentUser.username
+  const userDisplayName = currentUser.displayName || currentUser.username;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50 p-4">
@@ -106,14 +113,22 @@ export default function SettingsPage() {
                     {userDisplayName[0]}
                   </AvatarFallback>
                 </Avatar>
-                <h3 className="text-xl font-bold text-orange-900 mb-2">{userDisplayName}</h3>
+                <h3 className="text-xl font-bold text-orange-900 mb-2">
+                  {userDisplayName}
+                </h3>
                 <div className="flex justify-center">
                   {currentUser.isGuest ? (
-                    <Badge variant="outline" className="bg-blue-50 border-blue-200 text-blue-700">
+                    <Badge
+                      variant="outline"
+                      className="bg-blue-50 border-blue-200 text-blue-700"
+                    >
                       {t("guest")}
                     </Badge>
                   ) : (
-                    <Badge variant="outline" className="bg-green-50 border-green-200 text-green-700">
+                    <Badge
+                      variant="outline"
+                      className="bg-green-50 border-green-200 text-green-700"
+                    >
                       家庭成员
                     </Badge>
                   )}
@@ -168,7 +183,9 @@ export default function SettingsPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="text-orange-800 font-medium">界面语言</Label>
+                    <Label className="text-orange-800 font-medium">
+                      界面语言
+                    </Label>
                     <p className="text-sm text-orange-600 mt-1">
                       当前语言: {i18n.language === "en" ? "English" : "中文"}
                     </p>
@@ -191,22 +208,34 @@ export default function SettingsPage() {
               <CardContent className="p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="text-orange-800 font-medium">新菜品通知</Label>
-                    <p className="text-sm text-orange-600">当有新菜品添加时通知我</p>
+                    <Label className="text-orange-800 font-medium">
+                      新菜品通知
+                    </Label>
+                    <p className="text-sm text-orange-600">
+                      当有新菜品添加时通知我
+                    </p>
                   </div>
                   <Switch defaultChecked />
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="text-orange-800 font-medium">评论通知</Label>
-                    <p className="text-sm text-orange-600">当有人评论我选择的菜品时通知我</p>
+                    <Label className="text-orange-800 font-medium">
+                      评论通知
+                    </Label>
+                    <p className="text-sm text-orange-600">
+                      当有人评论我选择的菜品时通知我
+                    </p>
                   </div>
                   <Switch defaultChecked />
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="text-orange-800 font-medium">每日提醒</Label>
-                    <p className="text-sm text-orange-600">每天提醒我选择晚餐菜品</p>
+                    <Label className="text-orange-800 font-medium">
+                      每日提醒
+                    </Label>
+                    <p className="text-sm text-orange-600">
+                      每天提醒我选择晚餐菜品
+                    </p>
                   </div>
                   <Switch />
                 </div>
@@ -221,22 +250,34 @@ export default function SettingsPage() {
               <CardContent className="p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="text-orange-800 font-medium">紧凑模式</Label>
-                    <p className="text-sm text-orange-600">使用更紧凑的界面布局</p>
+                    <Label className="text-orange-800 font-medium">
+                      紧凑模式
+                    </Label>
+                    <p className="text-sm text-orange-600">
+                      使用更紧凑的界面布局
+                    </p>
                   </div>
                   <Switch />
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="text-orange-800 font-medium">显示食材详情</Label>
-                    <p className="text-sm text-orange-600">在菜品卡片上显示完整食材列表</p>
+                    <Label className="text-orange-800 font-medium">
+                      显示食材详情
+                    </Label>
+                    <p className="text-sm text-orange-600">
+                      在菜品卡片上显示完整食材列表
+                    </p>
                   </div>
                   <Switch defaultChecked />
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="text-orange-800 font-medium">动画效果</Label>
-                    <p className="text-sm text-orange-600">启用界面动画和过渡效果</p>
+                    <Label className="text-orange-800 font-medium">
+                      动画效果
+                    </Label>
+                    <p className="text-sm text-orange-600">
+                      启用界面动画和过渡效果
+                    </p>
                   </div>
                   <Switch defaultChecked />
                 </div>
@@ -255,7 +296,9 @@ export default function SettingsPage() {
                   </h3>
                   <p className="text-orange-700">用爱制作的美味中式菜肴</p>
                   <p className="text-sm text-orange-600">版本 1.0.0</p>
-                  <p className="text-xs text-orange-500 mt-4">© 2024 家庭厨房. 让每一餐都充满爱与温暖。</p>
+                  <p className="text-xs text-orange-500 mt-4">
+                    © 2024 家庭厨房. 让每一餐都充满爱与温暖。
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -263,5 +306,5 @@ export default function SettingsPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

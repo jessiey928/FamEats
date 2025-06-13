@@ -20,7 +20,7 @@ import {
   Trash2,
   Home
 } from "lucide-react";
-import { useApp } from "@/lib/context";
+import { useApp } from "@/lib/context/AppProvider";
 import { useLanguage } from "@/lib/language-context";
 
 export default function DishDetailsPage() {

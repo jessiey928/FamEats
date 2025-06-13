@@ -1,73 +1,73 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ChefHat, Globe, UserPlus, Users } from "lucide-react"
-import { useApp } from "@/lib/context"
-import { useLanguage } from "@/lib/language-context"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ChefHat, Globe, UserPlus, Users } from "lucide-react";
+import { useApp } from "@/lib/context/AppProvider";
+import { useLanguage } from "@/lib/language-context";
 
 export default function LoginPage() {
-  const { t, language, toggleLanguage } = useLanguage()
-  const { currentUser, login, guestLogin, loading } = useApp()
-  const router = useRouter()
+  const { t, language, toggleLanguage } = useLanguage();
+  const { currentUser, login, guestLogin, loading } = useApp();
+  const router = useRouter();
 
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
-  const [guestName, setGuestName] = useState("")
-  const [loginError, setLoginError] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [guestName, setGuestName] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   // 如果用户已登录，重定向到菜单页面
   useEffect(() => {
     if (!loading && currentUser) {
-      router.replace("/menu")
+      router.replace("/menu");
     }
-  }, [currentUser, loading, router])
+  }, [currentUser, loading, router]);
 
   const handleFamilyLogin = async () => {
-    setLoginError("")
-    setIsLoading(true)
+    setLoginError("");
+    setIsLoading(true);
 
     if (!username.trim()) {
-      setLoginError(t("usernameRequired"))
-      setIsLoading(false)
-      return
+      setLoginError(t("usernameRequired"));
+      setIsLoading(false);
+      return;
     }
 
     if (!password.trim()) {
-      setLoginError(t("passwordRequired"))
-      setIsLoading(false)
-      return
+      setLoginError(t("passwordRequired"));
+      setIsLoading(false);
+      return;
     }
 
-    const success = await login(username, password)
+    const success = await login(username, password);
 
     if (success) {
-      router.push("/menu")
+      router.push("/menu");
     } else {
-      setLoginError(t("invalidCredentials"))
+      setLoginError(t("invalidCredentials"));
     }
 
-    setIsLoading(false)
-  }
+    setIsLoading(false);
+  };
 
   const handleGuestLogin = async () => {
-    setIsLoading(true)
-    const success = await guestLogin(guestName.trim())
+    setIsLoading(true);
+    const success = await guestLogin(guestName.trim());
 
     if (success) {
-      router.push("/menu")
+      router.push("/menu");
     } else {
-      setLoginError("Guest login failed")
+      setLoginError("Guest login failed");
     }
 
-    setIsLoading(false)
-  }
+    setIsLoading(false);
+  };
 
   if (loading) {
     return (
@@ -77,7 +77,7 @@ export default function LoginPage() {
           <p className="text-orange-700">Loading...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -106,11 +106,17 @@ export default function LoginPage() {
         <CardContent className="p-4 sm:p-6 bg-white">
           <Tabs defaultValue="guest" className="space-y-6">
             <TabsList className="grid w-full grid-cols-2 bg-orange-100">
-              <TabsTrigger value="guest" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">
+              <TabsTrigger
+                value="guest"
+                className="data-[state=active]:bg-orange-500 data-[state=active]:text-white"
+              >
                 <UserPlus className="h-4 w-4 mr-2" />
                 {t("guestLogin")}
               </TabsTrigger>
-              <TabsTrigger value="family" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">
+              <TabsTrigger
+                value="family"
+                className="data-[state=active]:bg-orange-500 data-[state=active]:text-white"
+              >
                 <Users className="h-4 w-4 mr-2" />
                 {t("familyLogin")}
               </TabsTrigger>
@@ -119,7 +125,10 @@ export default function LoginPage() {
             <TabsContent value="family" className="space-y-4">
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="username" className="text-orange-800 font-medium">
+                  <Label
+                    htmlFor="username"
+                    className="text-orange-800 font-medium"
+                  >
                     {t("username")}
                   </Label>
                   <Input
@@ -134,7 +143,10 @@ export default function LoginPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="password" className="text-orange-800 font-medium">
+                  <Label
+                    htmlFor="password"
+                    className="text-orange-800 font-medium"
+                  >
                     {t("password")}
                   </Label>
                   <Input
@@ -148,7 +160,9 @@ export default function LoginPage() {
                   />
                 </div>
 
-                {loginError && <p className="text-red-600 text-sm">{loginError}</p>}
+                {loginError && (
+                  <p className="text-red-600 text-sm">{loginError}</p>
+                )}
 
                 <Button
                   onClick={handleFamilyLogin}
@@ -163,7 +177,10 @@ export default function LoginPage() {
             <TabsContent value="guest" className="space-y-4">
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="guestName" className="text-orange-800 font-medium">
+                  <Label
+                    htmlFor="guestName"
+                    className="text-orange-800 font-medium"
+                  >
                     {t("guestName")}
                   </Label>
                   <Input
@@ -195,5 +212,5 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

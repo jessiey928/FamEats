@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useApp } from "@/lib/context";
+import { useApp } from "@/lib/context/AppProvider";
 
 export default function HomePage() {
   const { currentUser } = useApp();

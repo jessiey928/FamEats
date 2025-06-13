@@ -16,12 +16,12 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { ArrowLeft, Plus, X, Upload, Globe, Home } from "lucide-react";
-import { useApp } from "@/lib/context";
+import { useApp } from "@/lib/context/AppProvider";
 import i18n from "@/lib/i18n";
 
 export default function AddDishPage() {
   const { t } = useTranslation();
-  const { currentUser, addMenuItem, uploadImage } = useApp();
+  const { currentUser, addMenuItem, uploadImage, getAllIngredients } = useApp();
   const router = useRouter();
 
   const [dishData, setDishData] = useState({
@@ -34,66 +34,27 @@ export default function AddDishPage() {
   const [newIngredient, setNewIngredient] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
-
-  // 双语食材建议
-  const ingredientSuggestions = [
-    "Rice",
-    "Noodles",
-    "Chicken",
-    "Pork",
-    "Beef",
-    "Fish",
-    "Shrimp",
-    "Tofu",
-    "Eggs",
-    "Onion",
-    "Garlic",
-    "Ginger",
-    "Scallions",
-    "Soy sauce",
-    "Oyster sauce",
-    "Sesame oil",
-    "Vegetable oil",
-    "Salt",
-    "Sugar",
-    "Vinegar",
-    "Tomatoes",
-    "Potatoes",
-    "Carrots",
-    "Bell peppers",
-    "Broccoli",
-    "米饭",
-    "面条",
-    "鸡肉",
-    "猪肉",
-    "牛肉",
-    "鱼",
-    "虾",
-    "豆腐",
-    "鸡蛋",
-    "洋葱",
-    "蒜",
-    "生姜",
-    "葱",
-    "生抽",
-    "蚝油",
-    "香油",
-    "植物油",
-    "盐",
-    "糖",
-    "醋",
-    "西红柿",
-    "土豆",
-    "胡萝卜",
-    "青椒",
-    "西兰花"
-  ];
+  const [ingredientSuggestions, setIngredientSuggestions] = useState<string[]>(
+    []
+  );
 
   useEffect(() => {
     if (!currentUser) {
       router.replace("/login");
     }
   }, [currentUser, router]);
+
+  useEffect(() => {
+    const fetchIngredients = async () => {
+      try {
+        const ingredients = await getAllIngredients();
+        setIngredientSuggestions(ingredients);
+      } catch (error) {
+        console.error("Failed to fetch ingredients:", error);
+      }
+    };
+    fetchIngredients();
+  }, []);
 
   if (!currentUser) {
     return (
