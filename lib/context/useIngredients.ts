@@ -18,3 +18,5 @@ export const useIngredients = () => {
     getAllIngredients
   };
 };
+
+export type IngredientsContextType = ReturnType<typeof useIngredients>;

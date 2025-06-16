@@ -80,3 +80,5 @@ export const useAuth = () => {
     checkAuthStatus
   };
 };
+
+export type AuthContextType = ReturnType<typeof useAuth>;

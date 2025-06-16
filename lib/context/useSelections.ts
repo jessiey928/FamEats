@@ -15,3 +15,5 @@ export const useSelections = () => {
     toggleSelection
   };
 };
+
+export type SelectionsContextType = ReturnType<typeof useSelections>;

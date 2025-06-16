@@ -24,3 +24,5 @@ export const useImageUpload = () => {
     uploadImage
   };
 };
+
+export type ImageUploadContextType = ReturnType<typeof useImageUpload>;

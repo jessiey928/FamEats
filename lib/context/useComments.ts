@@ -70,3 +70,5 @@ export const useComments = () => {
     toggleCommentLike
   };
 };
+
+export type CommentsContextType = ReturnType<typeof useComments>;

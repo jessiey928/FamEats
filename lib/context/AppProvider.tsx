@@ -1,15 +1,23 @@
 "use client";
 
 import React, { createContext, useEffect } from "react";
-import { useAuth } from "./useAuth";
-import { useDishes } from "./useDishes";
-import { useComments } from "./useComments";
-import { useSelections } from "./useSelections";
-import { useIngredients } from "./useIngredients";
-import { useTranslation } from "./useTranslation";
-import { useImageUpload } from "./useImageUpload";
+import { useAuth, AuthContextType } from "./useAuth";
+import { useDishes, DishesContextType } from "./useDishes";
+import { useComments, CommentsContextType } from "./useComments";
+import { useSelections, SelectionsContextType } from "./useSelections";
+import { useIngredients, IngredientsContextType } from "./useIngredients";
+import { useTranslation, TranslationContextType } from "./useTranslation";
+import { useImageUpload, ImageUploadContextType } from "./useImageUpload";
 
-const AppContext = createContext<any>(undefined);
+export type AppContextType = AuthContextType &
+  DishesContextType &
+  CommentsContextType &
+  SelectionsContextType &
+  IngredientsContextType &
+  ImageUploadContextType &
+  TranslationContextType;
+
+const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const auth = useAuth();

@@ -18,3 +18,5 @@ export const useTranslation = () => {
     getTranslatedDish
   };
 };
+
+export type TranslationContextType = ReturnType<typeof useTranslation>;

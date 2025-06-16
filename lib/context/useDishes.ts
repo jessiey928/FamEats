@@ -85,3 +85,5 @@ export const useDishes = () => {
     deleteMenuItem
   };
 };
+
+export type DishesContextType = ReturnType<typeof useDishes>;
