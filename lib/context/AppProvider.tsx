@@ -4,7 +4,6 @@ import React, { createContext, useEffect } from "react";
 import { useAuth, AuthContextType } from "./useAuth";
 import { useDishes, DishesContextType } from "./useDishes";
 import { useComments, CommentsContextType } from "./useComments";
-import { useSelections, SelectionsContextType } from "./useSelections";
 import { useIngredients, IngredientsContextType } from "./useIngredients";
 import { useTranslation, TranslationContextType } from "./useTranslation";
 import { useImageUpload, ImageUploadContextType } from "./useImageUpload";
@@ -12,7 +11,6 @@ import { useImageUpload, ImageUploadContextType } from "./useImageUpload";
 export type AppContextType = AuthContextType &
   DishesContextType &
   CommentsContextType &
-  SelectionsContextType &
   IngredientsContextType &
   ImageUploadContextType &
   TranslationContextType;
@@ -25,7 +23,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const comments = useComments();
   const ingredients = useIngredients();
   const imageUpload = useImageUpload();
-  const selections = useSelections();
   const translation = useTranslation();
 
   // 检查认证状态
@@ -51,7 +48,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         ...auth,
         ...dishes,
         ...comments,
-        ...selections,
         ...ingredients,
         ...imageUpload,
         ...translation,

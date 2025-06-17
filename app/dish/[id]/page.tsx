@@ -33,7 +33,6 @@ export default function DishDetailsPage() {
     addComment,
     editComment,
     deleteComment,
-    toggleSelection,
     toggleCommentLike
   } = useApp();
   const router = useRouter();
@@ -97,9 +96,6 @@ export default function DishDetailsPage() {
   const translatedDish = getTranslatedDish(dish);
   const userDisplayName = currentUser.display_name || currentUser.username;
   const isAdmin = !currentUser.is_guest;
-  const hasSelected =
-    dish.selections &&
-    dish.selections.some((s) => s.member_name === userDisplayName);
 
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
@@ -111,7 +107,10 @@ export default function DishDetailsPage() {
   };
 
   const handleToggleSelection = async () => {
-    await toggleSelection(dish.id);
+    await updateMenuItem({
+      ...dish,
+      selected: dish.selected ? 0 : 1
+    });
   };
 
   const toggleAvailability = async () => {
@@ -219,14 +218,14 @@ export default function DishDetailsPage() {
               <Button
                 size="lg"
                 className={`shadow-lg font-medium ${
-                  hasSelected
+                  dish.selected
                     ? "bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white"
                     : "bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white"
                 }`}
                 onClick={handleToggleSelection}
                 disabled={!translatedDish.available}
               >
-                {hasSelected ? (
+                {dish.selected ? (
                   <>
                     <Check className="h-5 w-5 mr-2" />
                     {t("selected3")}

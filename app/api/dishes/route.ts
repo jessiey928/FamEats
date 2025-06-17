@@ -7,7 +7,6 @@ import type { CreateDishRequest, Dish } from "@/lib/types";
 export const GET = requireAuth(
   async (_request: NextRequest, _context: any, _user: AuthUser) => {
     try {
-      // 获取菜品
       const dishes = db
         .prepare(
           `
@@ -26,19 +25,10 @@ export const GET = requireAuth(
           )
           .all(dish.id);
 
-        const selections = db
-          .prepare(
-            `
-        SELECT * FROM selections WHERE dish_id = ?
-      `
-          )
-          .all(dish.id);
-
         return {
           ...dish,
           ingredients: JSON.parse(dish.ingredients),
-          comments,
-          selections
+          comments
         };
       });
 

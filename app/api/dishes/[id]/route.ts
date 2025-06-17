@@ -83,6 +83,10 @@ export const PUT = requireAuth(
         updateFields.push("available = ?");
         updateValues.push(body.available ? 1 : 0);
       }
+      if (body.selected !== undefined) {
+        updateFields.push("selected = ?");
+        updateValues.push(body.selected ? 1 : 0);
+      }
       if (body.ingredients !== undefined) {
         updateFields.push("ingredients = ?");
         updateValues.push(JSON.stringify(body.ingredients));
@@ -103,15 +107,11 @@ export const PUT = requireAuth(
       const comments = db
         .prepare("SELECT * FROM comments WHERE dish_id = ?")
         .all(dishId);
-      const selections = db
-        .prepare("SELECT * FROM selections WHERE dish_id = ?")
-        .all(dishId);
 
       return NextResponse.json({
         ...updatedDish,
         ingredients: JSON.parse(updatedDish.ingredients),
-        comments,
-        selections
+        comments
       });
     } catch (error) {
       console.error("Update dish error:", error);

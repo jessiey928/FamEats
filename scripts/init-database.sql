@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS dishes (
     category TEXT NOT NULL,
     ingredients TEXT NOT NULL, -- JSON string
     available BOOLEAN DEFAULT TRUE,
+    selected BOOLEAN DEFAULT FALSE,
     created_by INTEGER,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -31,18 +32,6 @@ CREATE TABLE IF NOT EXISTS comments (
     text TEXT NOT NULL,
     likes INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (dish_id) REFERENCES dishes(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
--- 创建选择表
-CREATE TABLE IF NOT EXISTS selections (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    dish_id INTEGER NOT NULL,
-    user_id INTEGER NOT NULL,
-    member_name TEXT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(dish_id, user_id),
     FOREIGN KEY (dish_id) REFERENCES dishes(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );

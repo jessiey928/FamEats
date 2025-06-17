@@ -13,6 +13,7 @@ export interface Dish {
   category: string;
   ingredients: string;
   available: 0 | 1;
+  selected: 0 | 1;
   created_by: number;
   created_at: string;
   updated_at: string;
@@ -27,6 +28,7 @@ export interface ParsedDish {
   category: string;
   ingredients: string[];
   available: 0 | 1;
+  selected: 0 | 1;
   created_by: number;
   created_at: string;
   updated_at: string;

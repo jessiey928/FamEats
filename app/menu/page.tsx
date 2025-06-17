@@ -37,7 +37,6 @@ export default function MenuPage() {
     logout,
     deleteMenuItem,
     getTranslatedDish,
-    toggleSelection,
     updateMenuItem
   } = useApp();
   const router = useRouter();
@@ -67,7 +66,9 @@ export default function MenuPage() {
   };
 
   const handleToggleSelection = async (id: number) => {
-    await toggleSelection(id);
+    const dish = menuItems.find((item) => item.id === id);
+    if (!dish) return;
+    await updateMenuItem({ ...dish, selected: dish.selected ? 0 : 1 });
   };
 
   const handleLogout = async () => {
@@ -186,12 +187,6 @@ export default function MenuPage() {
                   )
                   .map((item) => {
                     const translatedItem = getTranslatedDish(item);
-                    const hasSelected =
-                      item.selections &&
-                      item.selections.some(
-                        (s) => s.member_name === userDisplayName
-                      );
-
                     return (
                       <Card
                         key={item.id}
@@ -221,14 +216,14 @@ export default function MenuPage() {
                             <Button
                               size="sm"
                               className={`shadow-lg font-medium ${
-                                hasSelected
+                                item.selected
                                   ? "bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white border-0"
                                   : "bg-gradient-to-r from-orange-400 to-red-400 hover:from-orange-500 hover:to-red-500 text-white border-0"
                               }`}
                               onClick={() => handleToggleSelection(item.id)}
                               disabled={!item.available}
                             >
-                              {hasSelected ? (
+                              {item.selected ? (
                                 <>
                                   <Check className="h-4 w-4 mr-1" />
                                   {t("selected")}

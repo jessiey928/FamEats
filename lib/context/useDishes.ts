@@ -55,7 +55,7 @@ export const useDishes = () => {
 
       if (response.ok) {
         const newDish = await response.json();
-        setMenuItems([...menuItems, newDish]);
+        setMenuItems([newDish, ...menuItems]);
       }
     } catch (error) {
       console.error("Failed to add dish:", error);
